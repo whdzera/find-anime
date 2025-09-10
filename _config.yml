@@ -2,7 +2,7 @@ title: Find Anime
 email: whdzera@gmail.com
 description: >-
   find scene anime from any image
-baseurl: ""
+baseurl: "/findanime"
 url: ""
 
 include:
