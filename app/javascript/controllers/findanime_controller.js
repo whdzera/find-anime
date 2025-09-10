@@ -137,11 +137,13 @@ export default class FindanimeController extends Controller {
 
     this.uploadTabButtonTarget.classList.add(
       "border-purple-500",
-      "text-purple-600"
+      "text-purple-600",
+      "dark:text-purple-400"
     );
     this.urlTabButtonTarget.classList.remove(
       "border-purple-500",
-      "text-purple-600"
+      "text-purple-600",
+      "dark:text-purple-400"
     );
   }
 
@@ -153,11 +155,13 @@ export default class FindanimeController extends Controller {
 
     this.urlTabButtonTarget.classList.add(
       "border-purple-500",
-      "text-purple-600"
+      "text-purple-600",
+      "dark:text-purple-400"
     );
     this.uploadTabButtonTarget.classList.remove(
       "border-purple-500",
-      "text-purple-600"
+      "text-purple-600",
+      "dark:text-purple-400"
     );
   }
 
@@ -237,7 +241,6 @@ export default class FindanimeController extends Controller {
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: "image/jpeg" });
   }
-
   displayResults(data) {
     if (!data.result || data.result.length === 0) {
       this.showError("No anime found for this image.");
@@ -247,10 +250,10 @@ export default class FindanimeController extends Controller {
     const container = this.resultsContainerTarget;
     container.innerHTML = "";
 
-    data.result.slice(0, 5).forEach((result, index) => {
+    data.result.slice(0, 5).forEach((result) => {
       const resultCard = document.createElement("div");
       resultCard.className =
-        "border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow";
+        "border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4 mb-4 hover:shadow-md transition-shadow";
 
       const similarity = (result.similarity * 100).toFixed(1);
       const episode = result.episode || "Unknown";
@@ -258,29 +261,31 @@ export default class FindanimeController extends Controller {
       const timeTo = this.formatTime(result.to);
 
       resultCard.innerHTML = `
-        <div class="flex justify-between items-start mb-2">
-          <h4 class="font-semibold text-lg text-gray-800">${
-            result.filename || "Unknown Anime"
-          }</h4>
-          <span class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">${similarity}% match</span>
-        </div>
-        <div class="text-gray-600 text-sm mb-3">
-          <p><strong>Episode:</strong> ${episode}</p>
-          <p><strong>Time:</strong> ${timeFrom} - ${timeTo}</p>
-        </div>
-        ${
-          result.video
-            ? `
-            <div class="mt-3">
-              <video controls class="w-full max-w-md rounded">
-                <source src="${result.video}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            </div>
-          `
-            : ""
-        }
-      `;
+      <div class="flex justify-between items-start mb-2">
+        <h4 class="font-semibold text-lg text-gray-800 dark:text-gray-100">
+          ${result.filename || "Unknown Anime"}
+        </h4>
+        <span class="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-medium px-2 py-1 rounded">
+          ${similarity}% match
+        </span>
+      </div>
+      <div class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+        <p><strong>Episode:</strong> ${episode}</p>
+        <p><strong>Time:</strong> ${timeFrom} - ${timeTo}</p>
+      </div>
+      ${
+        result.video
+          ? `
+          <div class="mt-3">
+            <video controls class="w-full max-w-md rounded">
+              <source src="${result.video}" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        `
+          : ""
+      }
+    `;
 
       container.appendChild(resultCard);
     });

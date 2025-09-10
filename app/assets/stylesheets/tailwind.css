@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.clickable {
+  cursor: pointer;
+}
+
+.drag-over {
+  border-color: #a855f7 !important;
+  background-color: #faf5ff !important;
+}

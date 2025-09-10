@@ -4,22 +4,24 @@ layout: default
 
 <div class="container mx-auto px-4 py-8">
   <div class="text-center mb-8">
-    <h1 class="text-4xl font-bold text-gray-800 mb-2">Find Anime</h1>
-    <p class="text-gray-600">
+    <h1 class="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+      Find Anime
+    </h1>
+    <p class="text-gray-600 dark:text-gray-400">
       Upload an anime screenshot to find the source anime
     </p>
   </div>
 
   <div data-controller="findanime" class="max-w-2xl mx-auto">
     <!-- Tabs -->
-    <div class="mb-4 border-b border-gray-200">
+    <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
       <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
         <li class="mr-2">
           <a
             href="#"
             data-action="click->findanime#showUploadTab"
             data-findanime-target="uploadTabButton"
-            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
             aria-current="page"
           >
             Upload
@@ -30,7 +32,7 @@ layout: default
             href="#"
             data-action="click->findanime#showUrlTab"
             data-findanime-target="urlTabButton"
-            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
           >
             URL
           </a>
@@ -41,42 +43,67 @@ layout: default
     <!-- Upload Tab Content -->
     <div
       data-findanime-target="uploadTab"
-      class="bg-white rounded-lg shadow-lg p-6 mb-6"
+      class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
     >
-      <h2 class="text-xl font-semibold mb-4">Upload Image</h2>
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        Upload Image
+      </h2>
 
-      <!-- File Upload & Drag & Drop Zone -->
-      <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2"
-          >Choose a File or Drag & Drop</label
+      <!-- File Upload & Drag & Drop Unified -->
+      <label
+        for="fileUpload"
+        data-findanime-target="dropZone"
+        data-action="dragover->findanime#handleDragOver dragenter->findanime#handleDragEnter dragleave->findanime#handleDragLeave drop->findanime#handleDrop click->findanime#triggerFileInput"
+        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer flex flex-col items-center justify-center"
+      >
+        <!-- Icon -->
+        <div
+          class="w-12 h-12 mb-2 text-gray-700 dark:text-gray-200 flex items-center justify-center"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            class="w-full h-full"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 7a2 2 0 012-2h5l2 2h7a2 2 0 012 2v7a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+            />
+          </svg>
+        </div>
+
+        <!-- Label Text -->
+        <p class="text-gray-500 dark:text-gray-400">
+          Click to choose or drag & drop an image
+        </p>
+
+        <!-- Hidden File Input -->
         <input
+          id="fileUpload"
           type="file"
           accept="image/*"
           data-findanime-target="fileInput"
           data-action="change->findanime#handleFileUpload"
-          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mb-2"
+          class="hidden"
         />
-
-        <div
-          data-findanime-target="dropZone"
-          data-action="dragover->findanime#handleDragOver dragenter->findanime#handleDragEnter dragleave->findanime#handleDragLeave drop->findanime#handleDrop"
-          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer"
-        >
-          <div class="text-4xl mb-2">📁</div>
-          <p class="text-gray-500">Drag and drop an image here</p>
-        </div>
-      </div>
+      </label>
     </div>
 
     <!-- URL Tab Content -->
     <div
       data-findanime-target="urlTab"
-      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+      class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
     >
-      <h2 class="text-xl font-semibold mb-4">From URL</h2>
+      <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        From URL
+      </h2>
       <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2"
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >Image URL</label
         >
         <div class="flex gap-2">
@@ -84,12 +111,12 @@ layout: default
             type="url"
             placeholder="https://example.com/anime-image.jpg"
             data-findanime-target="urlInput"
-            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100"
           />
           <button
             data-action="click->findanime#handleUrlUpload"
             data-findanime-target="searchButton"
-            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            class="clickable px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
           >
             Search
           </button>
@@ -100,22 +127,24 @@ layout: default
     <!-- Loading State -->
     <div
       data-findanime-target="loading"
-      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+      class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
     >
       <div class="text-center">
         <div
           class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"
         ></div>
-        <p class="text-gray-600">Searching for anime...</p>
+        <p class="text-gray-600 dark:text-gray-400">Searching for anime...</p>
       </div>
     </div>
 
     <!-- Preview Image -->
     <div
       data-findanime-target="imagePreview"
-      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+      class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
     >
-      <h3 class="text-lg font-semibold mb-3">Preview</h3>
+      <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-100">
+        Preview
+      </h3>
       <img
         data-findanime-target="previewImg"
         class="max-w-full h-auto rounded-lg mx-auto"
@@ -126,31 +155,29 @@ layout: default
     <!-- Results -->
     <div
       data-findanime-target="results"
-      class="hidden bg-white rounded-lg shadow-lg p-6"
+      class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
     >
-      <h3 class="text-lg font-semibold mb-4">Results</h3>
+      <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
+        Results
+      </h3>
       <div data-findanime-target="resultsContainer"></div>
     </div>
 
     <!-- Error -->
     <div
       data-findanime-target="error"
-      class="hidden bg-red-50 border border-red-200 rounded-lg p-4"
+      class="hidden bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4"
     >
       <div class="flex">
-        <div class="text-red-600 mr-2">⚠️</div>
+        <div class="text-red-600 dark:text-red-400 mr-2">⚠️</div>
         <div>
-          <h4 class="font-medium text-red-800">Error</h4>
-          <p data-findanime-target="errorMessage" class="text-red-700"></p>
+          <h4 class="font-medium text-red-800 dark:text-red-200">Error</h4>
+          <p
+            data-findanime-target="errorMessage"
+            class="text-red-700 dark:text-red-300"
+          ></p>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<style>
-  .drag-over {
-    border-color: #a855f7 !important;
-    background-color: #faf5ff !important;
-  }
-</style>
