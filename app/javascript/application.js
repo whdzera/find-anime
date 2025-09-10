@@ -1,0 +1,7 @@
+import { Application } from "@hotwired/stimulus";
+import "@hotwired/turbo";
+
+window.Stimulus = Application.start();
+
+import MessageController from "./controllers/message_controller.js";
+Stimulus.register("message", MessageController);
