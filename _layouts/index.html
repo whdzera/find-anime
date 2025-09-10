@@ -2,151 +2,155 @@
 layout: default
 ---
 
-<section class="flex-1 py-12">
-  <div class="container mx-auto px-4">
-    <h1
-      class="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
-    >
-      Find Your Anime
-    </h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2">Find Anime</h1>
+    <p class="text-gray-600">
+      Upload an anime screenshot to find the source anime
+    </p>
+  </div>
 
-    <div class="flex justify-center">
-      <div class="w-full max-w-4xl">
-        <!-- Upload Section -->
-        <div
-          class="bg-dark-900 p-8 rounded-xl shadow-2xl mb-8 border border-dark-700"
-          data-controller="anime-trace"
-        >
-          <h3 class="text-2xl font-semibold text-white mb-6">Upload Image</h3>
-
-          <!-- Tabs for upload options -->
-          <div class="mb-6">
-            <div class="flex border-b border-dark-700">
-              <button
-                class="px-6 py-3 text-blue-400 border-b-2 border-blue-400 font-medium flex items-center space-x-2"
-                data-anime-trace-target="fileTab"
-                data-action="click->anime-trace#switchToFileTab"
-              >
-                <i class="fas fa-file-image"></i>
-                <span>Upload File</span>
-              </button>
-              <button
-                class="px-6 py-3 text-gray-400 hover:text-white transition-colors font-medium flex items-center space-x-2"
-                data-anime-trace-target="urlTab"
-                data-action="click->anime-trace#switchToUrlTab"
-              >
-                <i class="fas fa-link"></i>
-                <span>Image URL</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- File Upload Tab Content -->
-          <div data-anime-trace-target="fileContent">
-            <div
-              class="border-2 border-dashed border-blue-500 rounded-xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-green-400 hover:bg-green-400/5 mb-4"
-              data-anime-trace-target="dropArea"
-              data-action="click->anime-trace#browseFiles dragenter->anime-trace#highlight dragover->anime-trace#highlight dragleave->anime-trace#unhighlight drop->anime-trace#handleDrop"
-            >
-              <i
-                class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"
-              ></i>
-              <p class="text-lg mb-2">Drag & drop your image here</p>
-              <p class="text-sm text-gray-400 mb-4">or</p>
-              <button
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              >
-                Browse Files
-              </button>
-              <input
-                type="file"
-                accept="image/*"
-                class="hidden"
-                data-anime-trace-target="fileInput"
-                data-action="change->anime-trace#handleFileSelect"
-              />
-            </div>
-
-            <div
-              class="hidden bg-dark-800 p-4 rounded-lg flex items-center justify-between"
-              data-anime-trace-target="fileDetails"
-            >
-              <div class="flex items-center space-x-3">
-                <i class="fas fa-file-image text-blue-400"></i>
-                <span data-anime-trace-target="filename">No file selected</span>
-              </div>
-              <button
-                class="text-gray-400 hover:text-red-400 transition-colors"
-                data-action="click->anime-trace#removeFile"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- URL Tab Content -->
-          <div class="hidden" data-anime-trace-target="urlContent">
-            <div class="flex space-x-0 mb-4">
-              <input
-                type="text"
-                class="flex-1 px-4 py-3 bg-dark-800 border border-dark-600 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
-                placeholder="Enter image URL"
-                data-anime-trace-target="imageUrl"
-              />
-              <button
-                class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-r-lg font-medium transition-colors"
-                data-action="click->anime-trace#fetchUrl"
-              >
-                Fetch
-              </button>
-            </div>
-          </div>
-
-          <!-- Preview Section -->
-          <div
-            class="hidden bg-dark-800 rounded-lg p-6 mb-6"
-            data-anime-trace-target="previewContainer"
+  <div data-controller="findanime" class="max-w-2xl mx-auto">
+    <!-- Tabs -->
+    <div class="mb-4 border-b border-gray-200">
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+        <li class="mr-2">
+          <a
+            href="#"
+            data-action="click->findanime#showUploadTab"
+            data-findanime-target="uploadTabButton"
+            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            aria-current="page"
           >
-            <h4 class="text-lg font-medium mb-4 text-center">Preview</h4>
-            <div data-anime-trace-target="preview" class="text-center"></div>
-          </div>
+            Upload
+          </a>
+        </li>
+        <li class="mr-2">
+          <a
+            href="#"
+            data-action="click->findanime#showUrlTab"
+            data-findanime-target="urlTabButton"
+            class="inline-flex p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+          >
+            URL
+          </a>
+        </li>
+      </ul>
+    </div>
 
-          <!-- Search Button -->
-          <div class="text-center">
-            <button
-              class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 mx-auto"
-              data-action="click->anime-trace#search"
-            >
-              <i class="fas fa-search"></i>
-              <span>Search</span>
-            </button>
-          </div>
+    <!-- Upload Tab Content -->
+    <div
+      data-findanime-target="uploadTab"
+      class="bg-white rounded-lg shadow-lg p-6 mb-6"
+    >
+      <h2 class="text-xl font-semibold mb-4">Upload Image</h2>
+
+      <!-- File Upload & Drag & Drop Zone -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Choose a File or Drag & Drop</label
+        >
+        <input
+          type="file"
+          accept="image/*"
+          data-findanime-target="fileInput"
+          data-action="change->findanime#handleFileUpload"
+          class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mb-2"
+        />
+
+        <div
+          data-findanime-target="dropZone"
+          data-action="dragover->findanime#handleDragOver dragenter->findanime#handleDragEnter dragleave->findanime#handleDragLeave drop->findanime#handleDrop"
+          class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors cursor-pointer"
+        >
+          <div class="text-4xl mb-2">📁</div>
+          <p class="text-gray-500">Drag and drop an image here</p>
         </div>
+      </div>
+    </div>
 
-        <!-- Loading indicator -->
-        <div class="hidden text-center py-8" data-anime-trace-target="loading">
-          <p class="text-blue-400 mb-4 text-lg">
-            Searching for matching anime...
-          </p>
-          <div class="flex justify-center space-x-2">
-            <div class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-            <div
-              class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"
-              style="animation-delay: 0.2s"
-            ></div>
-            <div
-              class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"
-              style="animation-delay: 0.4s"
-            ></div>
-          </div>
+    <!-- URL Tab Content -->
+    <div
+      data-findanime-target="urlTab"
+      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+    >
+      <h2 class="text-xl font-semibold mb-4">From URL</h2>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2"
+          >Image URL</label
+        >
+        <div class="flex gap-2">
+          <input
+            type="url"
+            placeholder="https://example.com/anime-image.jpg"
+            data-findanime-target="urlInput"
+            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+          <button
+            data-action="click->findanime#handleUrlUpload"
+            data-findanime-target="searchButton"
+            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+          >
+            Search
+          </button>
         </div>
+      </div>
+    </div>
 
-        <!-- Results Section -->
-        <div class="hidden" data-anime-trace-target="resultsSection">
-          <h3 class="text-2xl font-semibold text-white mb-6">Results</h3>
-          <div data-anime-trace-target="results"></div>
+    <!-- Loading State -->
+    <div
+      data-findanime-target="loading"
+      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+    >
+      <div class="text-center">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"
+        ></div>
+        <p class="text-gray-600">Searching for anime...</p>
+      </div>
+    </div>
+
+    <!-- Preview Image -->
+    <div
+      data-findanime-target="imagePreview"
+      class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+    >
+      <h3 class="text-lg font-semibold mb-3">Preview</h3>
+      <img
+        data-findanime-target="previewImg"
+        class="max-w-full h-auto rounded-lg mx-auto"
+        alt="Preview"
+      />
+    </div>
+
+    <!-- Results -->
+    <div
+      data-findanime-target="results"
+      class="hidden bg-white rounded-lg shadow-lg p-6"
+    >
+      <h3 class="text-lg font-semibold mb-4">Results</h3>
+      <div data-findanime-target="resultsContainer"></div>
+    </div>
+
+    <!-- Error -->
+    <div
+      data-findanime-target="error"
+      class="hidden bg-red-50 border border-red-200 rounded-lg p-4"
+    >
+      <div class="flex">
+        <div class="text-red-600 mr-2">⚠️</div>
+        <div>
+          <h4 class="font-medium text-red-800">Error</h4>
+          <p data-findanime-target="errorMessage" class="text-red-700"></p>
         </div>
       </div>
     </div>
   </div>
-</section>
+</div>
+
+<style>
+  .drag-over {
+    border-color: #a855f7 !important;
+    background-color: #faf5ff !important;
+  }
+</style>

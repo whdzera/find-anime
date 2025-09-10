@@ -2,355 +2,335 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class FindanimeController extends Controller {
   static targets = [
-    "fileTab",
-    "urlTab",
-    "fileContent",
-    "urlContent",
-    "dropArea",
     "fileInput",
-    "fileDetails",
-    "filename",
-    "imageUrl",
-    "previewContainer",
-    "preview",
+    "dropZone",
+    "urlInput",
     "loading",
-    "resultsSection",
+    "imagePreview",
+    "previewImg",
     "results",
+    "resultsContainer",
+    "error",
+    "errorMessage",
+    "searchButton",
+    "uploadTab",
+    "urlTab",
+    "uploadTabButton",
+    "urlTabButton",
   ];
 
-  static values = {
-    apiUrl: { type: String, default: "https://api.trace.moe/search" }, // Make API URL configurable
-  };
-
-  currentImageFile = null;
-
   connect() {
-    // Setup drag and drop event listeners
-    this.setupDragAndDrop();
+    console.log("Anime Finder controller connected");
+    // Set default tab state
+    this.showUploadTab(new Event("connect"));
   }
 
-  disconnect() {
-    // Remove event listeners when the controller is disconnected
-    this.removeDragAndDrop();
-  }
-
-  setupDragAndDrop() {
-    this.dragEnter = this.highlight.bind(this);
-    this.dragOver = this.highlight.bind(this);
-    this.dragLeave = this.unhighlight.bind(this);
-    this.drop = this.handleDrop.bind(this);
-
-    this.dropAreaTarget.addEventListener("dragenter", this.dragEnter, false);
-    this.dropAreaTarget.addEventListener("dragover", this.dragOver, false);
-    this.dropAreaTarget.addEventListener("dragleave", this.dragLeave, false);
-    this.dropAreaTarget.addEventListener("drop", this.drop, false);
-  }
-
-  removeDragAndDrop() {
-    this.dropAreaTarget.removeEventListener("dragenter", this.dragEnter, false);
-    this.dropAreaTarget.removeEventListener("dragover", this.dragOver, false);
-    this.dropAreaTarget.removeEventListener("dragleave", this.dragLeave, false);
-    this.dropAreaTarget.removeEventListener("drop", this.drop, false);
-  }
-
-  switchToFileTab(event) {
-    event.preventDefault();
-    this.setActiveTab("file");
-  }
-
-  switchToUrlTab(event) {
-    event.preventDefault();
-    this.setActiveTab("url");
-  }
-
-  setActiveTab(tabName) {
-    if (tabName === "file") {
-      this.fileTabTarget.classList.add(
-        "text-blue-400",
-        "border-b-2",
-        "border-blue-400"
-      );
-      this.fileTabTarget.classList.remove("text-gray-400");
-      this.urlTabTarget.classList.remove(
-        "text-blue-400",
-        "border-b-2",
-        "border-blue-400"
-      );
-      this.urlTabTarget.classList.add("text-gray-400");
-
-      this.fileContentTarget.classList.remove("hidden");
-      this.urlContentTarget.classList.add("hidden");
-    } else if (tabName === "url") {
-      this.urlTabTarget.classList.add(
-        "text-blue-400",
-        "border-b-2",
-        "border-blue-400"
-      );
-      this.urlTabTarget.classList.remove("text-gray-400");
-      this.fileTabTarget.classList.remove(
-        "text-blue-400",
-        "border-b-2",
-        "border-blue-400"
-      );
-      this.fileTabTarget.classList.add("text-gray-400");
-
-      this.urlContentTarget.classList.remove("hidden");
-      this.fileContentTarget.classList.add("hidden");
-    }
-  }
-
-  browseFiles(event) {
-    event.preventDefault();
-    this.fileInputTarget.click();
-  }
-
-  handleFileSelect(event) {
+  // File Upload Handlers
+  handleFileUpload(event) {
     const file = event.target.files[0];
     if (file) {
       this.processFile(file);
     }
   }
 
-  removeFile(event) {
-    event.preventDefault();
-    this.resetFileUpload();
-  }
-
-  async fetchUrl(event) {
-    event.preventDefault();
-    const imageUrl = this.imageUrlTarget.value.trim();
-
-    if (!imageUrl) {
-      alert("Please enter a valid image URL");
-      return;
-    }
-
-    this.showPreviewLoading();
-
-    try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status}`);
-      }
-      const blob = await response.blob();
-      const file = new File([blob], "image-from-url.jpg", { type: blob.type });
-      this.processFile(file);
-    } catch (error) {
-      this.showPreviewError(
-        "Failed to load image. Please check the URL and ensure CORS is enabled on the image server."
-      );
-      console.error("Error fetching image:", error); // Log the error for debugging
-    }
-  }
-
-  highlight(event) {
+  // Drag and Drop Handlers
+  handleDragOver(event) {
     event.preventDefault();
     event.stopPropagation();
-    this.dropAreaTarget.classList.add("border-green-400", "bg-green-400/10");
-    this.dropAreaTarget.classList.remove("border-blue-500");
   }
 
-  unhighlight(event) {
+  handleDragEnter(event) {
     event.preventDefault();
     event.stopPropagation();
-    this.dropAreaTarget.classList.remove("border-green-400", "bg-green-400/10");
-    this.dropAreaTarget.classList.add("border-blue-500");
+    this.dropZoneTarget.classList.add("drag-over");
+  }
+
+  handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    // Only remove drag-over if we're really leaving the drop zone
+    if (!this.dropZoneTarget.contains(event.relatedTarget)) {
+      this.dropZoneTarget.classList.remove("drag-over");
+    }
   }
 
   handleDrop(event) {
     event.preventDefault();
     event.stopPropagation();
+    this.dropZoneTarget.classList.remove("drag-over");
 
     const files = event.dataTransfer.files;
-
     if (files.length > 0) {
       this.processFile(files[0]);
     }
   }
 
-  processFile(file) {
-    if (!file.type.match("image.*")) {
-      alert("Please select an image file!");
+  // URL Upload Handler
+  async handleUrlUpload() {
+    const url = this.urlInputTarget.value.trim();
+
+    if (!this.isValidUrl(url)) {
+      this.showError("Please enter a valid image URL.");
       return;
-    }
-
-    this.currentImageFile = file;
-    this.filenameTarget.textContent = file.name;
-    this.fileDetailsTarget.classList.remove("hidden");
-    this.dropAreaTarget.classList.add("hidden");
-    this.showPreview(file);
-  }
-
-  showPreview(file) {
-    this.previewContainerTarget.classList.remove("hidden");
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      this.previewTarget.innerHTML = `<img src="${e.target.result}" class="max-w-full max-h-80 mx-auto rounded-lg shadow-lg">`;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  showPreviewLoading() {
-    this.previewContainerTarget.classList.remove("hidden");
-    this.previewTarget.innerHTML =
-      "<p class='text-center'><i class='fas fa-spinner fa-spin text-blue-400'></i> Loading image...</p>";
-  }
-
-  showPreviewError(message) {
-    this.previewContainerTarget.classList.remove("hidden");
-    this.previewTarget.innerHTML = `<p class='text-red-400 text-center'><i class='fas fa-exclamation-triangle'></i> ${message}</p>`;
-  }
-
-  resetFileUpload() {
-    this.currentImageFile = null;
-    this.fileInputTarget.value = "";
-    this.filenameTarget.textContent = "No file selected";
-    this.fileDetailsTarget.classList.add("hidden");
-    this.dropAreaTarget.classList.remove("hidden");
-    this.previewContainerTarget.classList.add("hidden");
-    this.previewTarget.innerHTML = ""; // Clear the preview
-  }
-
-  async search(event) {
-    event.preventDefault();
-
-    const imageUrl = this.imageUrlTarget.value.trim();
-    const isFileTab = !this.fileContentTarget.classList.contains("hidden");
-
-    if (isFileTab && !this.currentImageFile) {
-      alert("Please select an image first!");
-      return;
-    }
-
-    if (!isFileTab && !imageUrl) {
-      alert("Please enter an image URL!");
-      return;
-    }
-
-    this.showLoading();
-    this.hideResults();
-
-    const formData = new FormData();
-
-    if (isFileTab) {
-      formData.append("image", this.currentImageFile);
-    } else {
-      formData.append("url", imageUrl);
     }
 
     try {
-      const response = await fetch(this.apiUrlValue, {
+      this.showLoading();
+      this.hideError();
+      this.disableSearchButton();
+
+      // Show preview
+      this.previewImgTarget.src = url;
+      this.imagePreviewTarget.classList.remove("hidden");
+
+      await this.searchAnime(url);
+    } catch (error) {
+      this.showError("Failed to process the image from URL.");
+      console.error(error);
+    } finally {
+      this.enableSearchButton();
+    }
+  }
+
+  // Image Processing - Unified file processing
+  processFile(file) {
+    if (this.isValidFileType(file)) {
+      this.processImage(file);
+    } else {
+      this.showError(
+        "Invalid file type. Please upload an image (jpeg, png, webp)."
+      );
+    }
+  }
+
+  async processImage(file) {
+    try {
+      this.showLoading();
+      this.hideError();
+      this.disableSearchButton();
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewImgTarget.src = e.target.result;
+        this.imagePreviewTarget.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+
+      // Convert to base64 and search
+      const base64 = await this.fileToBase64(file);
+      await this.searchAnime(base64);
+    } catch (error) {
+      this.showError("Failed to process the image file.");
+      console.error(error);
+    } finally {
+      this.enableSearchButton();
+    }
+  }
+
+  // Tab Switching
+  showUploadTab(event) {
+    if (event.preventDefault) event.preventDefault();
+
+    this.uploadTabTarget.classList.remove("hidden");
+    this.urlTabTarget.classList.add("hidden");
+
+    this.uploadTabButtonTarget.classList.add(
+      "border-purple-500",
+      "text-purple-600"
+    );
+    this.urlTabButtonTarget.classList.remove(
+      "border-purple-500",
+      "text-purple-600"
+    );
+  }
+
+  showUrlTab(event) {
+    event.preventDefault();
+
+    this.uploadTabTarget.classList.add("hidden");
+    this.urlTabTarget.classList.remove("hidden");
+
+    this.urlTabButtonTarget.classList.add(
+      "border-purple-500",
+      "text-purple-600"
+    );
+    this.uploadTabButtonTarget.classList.remove(
+      "border-purple-500",
+      "text-purple-600"
+    );
+  }
+
+  // Helper Functions
+  isValidFileType(file) {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    return allowedTypes.includes(file.type);
+  }
+
+  isValidUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === "http:" || urlObj.protocol === "https:";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async searchAnime(imageData) {
+    try {
+      const formData = new FormData();
+
+      if (typeof imageData === "string" && imageData.startsWith("http")) {
+        // URL
+        formData.append("url", imageData);
+      } else {
+        // Base64 data
+        const base64Data = imageData.split(",")[1];
+        const blob = this.base64ToBlob(base64Data);
+        formData.append("image", blob);
+      }
+
+      const response = await fetch("https://api.trace.moe/search", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      this.hideLoading();
-      this.showResults();
-
-      if (data.result && data.result.length > 0) {
-        this.displayResults(data.result);
-      } else {
-        this.displayNoResults();
-      }
+      this.displayResults(data);
     } catch (error) {
+      this.showError(`Failed to search for anime: ${error.message}`);
+      console.error(error);
+    } finally {
       this.hideLoading();
-      this.showResults();
-      this.displaySearchError(error);
-      console.error("Search error:", error);
+      this.enableSearchButton();
     }
   }
 
-  displayResults(results) {
-    let html = "";
+  base64ToBlob(base64) {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
 
-    results.forEach((result) => {
-      const similarityPercent = (result.similarity * 100).toFixed(1);
-      const similarityClass = this.getSimilarityClass(result.similarity);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
 
-      html += `
-        <div class="bg-dark-900 border border-dark-700 rounded-xl p-6 mb-6 shadow-xl hover:transform hover:scale-105 transition-all 
-duration-300">
-          <div class="mb-4">
-            <div class="flex flex-wrap items-center justify-between mb-2">
-              <h4 class="text-xl font-semibold text-white">${
-                result.filename
-              }</h4>
-              <span class="px-3 py-1 rounded-full text-sm font-medium ${similarityClass}">
-                Match: ${similarityPercent}%
-              </span>
-            </div>
-            <p class="text-gray-400 mb-3">Episode: ${
-              result.episode || "Unknown"
-            }</p>
-            
-            <div class="flex flex-wrap gap-2">
-              <a href="https://anilist.co/anime/${
-                result.anilist
-              }" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm transition-colors">
-                Anilist ID: ${
-                  result.anilist
-                } <i class="fas fa-external-link-alt ml-1"></i>
-              </a>
-            </div>
-          </div>
-          
-          <div class="bg-black rounded-lg p-2">
-            <video class="w-full h-auto rounded-lg" controls>
-              <source src="${result.video}" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
-          </div>
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: "image/jpeg" });
+  }
+
+  displayResults(data) {
+    if (!data.result || data.result.length === 0) {
+      this.showError("No anime found for this image.");
+      return;
+    }
+
+    const container = this.resultsContainerTarget;
+    container.innerHTML = "";
+
+    data.result.slice(0, 5).forEach((result, index) => {
+      const resultCard = document.createElement("div");
+      resultCard.className =
+        "border rounded-lg p-4 mb-4 hover:shadow-md transition-shadow";
+
+      const similarity = (result.similarity * 100).toFixed(1);
+      const episode = result.episode || "Unknown";
+      const timeFrom = this.formatTime(result.from);
+      const timeTo = this.formatTime(result.to);
+
+      resultCard.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <h4 class="font-semibold text-lg text-gray-800">${
+            result.filename || "Unknown Anime"
+          }</h4>
+          <span class="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded">${similarity}% match</span>
         </div>
+        <div class="text-gray-600 text-sm mb-3">
+          <p><strong>Episode:</strong> ${episode}</p>
+          <p><strong>Time:</strong> ${timeFrom} - ${timeTo}</p>
+        </div>
+        ${
+          result.video
+            ? `
+            <div class="mt-3">
+              <video controls class="w-full max-w-md rounded">
+                <source src="${result.video}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          `
+            : ""
+        }
       `;
+
+      container.appendChild(resultCard);
     });
 
-    this.resultsTarget.innerHTML = html;
+    this.resultsTarget.classList.remove("hidden");
   }
 
-  getSimilarityClass(similarity) {
-    if (similarity > 0.9) {
-      return "bg-green-500";
-    } else if (similarity > 0.7) {
-      return "bg-yellow-500 text-black";
-    } else {
-      return "bg-red-500";
-    }
+  formatTime(seconds) {
+    if (!seconds && seconds !== 0) return "00:00";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
   }
 
-  displayNoResults() {
-    this.resultsTarget.innerHTML = `
-      <div class="bg-yellow-900/50 border border-yellow-700 text-yellow-100 px-6 py-4 rounded-lg">
-        <p>No matching anime found. Try another screenshot!</p>
-      </div>
-    `;
-  }
-
-  displaySearchError(error) {
-    this.resultsTarget.innerHTML = `
-      <div class="bg-red-900/50 border border-red-700 text-red-100 px-6 py-4 rounded-lg">
-        <p>Error occurred while searching: ${error.message}. Please try again later.</p>
-      </div>
-    `;
-  }
-
+  // UI State Management
   showLoading() {
     this.loadingTarget.classList.remove("hidden");
+    this.resultsTarget.classList.add("hidden");
   }
 
   hideLoading() {
     this.loadingTarget.classList.add("hidden");
   }
 
-  showResults() {
-    this.resultsSectionTarget.classList.remove("hidden");
+  showError(message) {
+    this.errorMessageTarget.textContent = message;
+    this.errorTarget.classList.remove("hidden");
+    this.hideLoading();
   }
 
-  hideResults() {
-    this.resultsSectionTarget.classList.add("hidden");
+  hideError() {
+    this.errorTarget.classList.add("hidden");
+  }
+
+  disableSearchButton() {
+    if (this.hasSearchButtonTarget) {
+      this.searchButtonTarget.disabled = true;
+      this.searchButtonTarget.classList.add("opacity-50", "cursor-not-allowed");
+    }
+  }
+
+  enableSearchButton() {
+    if (this.hasSearchButtonTarget) {
+      this.searchButtonTarget.disabled = false;
+      this.searchButtonTarget.classList.remove(
+        "opacity-50",
+        "cursor-not-allowed"
+      );
+    }
   }
 }
