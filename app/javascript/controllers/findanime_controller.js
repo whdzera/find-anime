@@ -20,7 +20,6 @@ export default class FindanimeController extends Controller {
   ];
 
   connect() {
-    console.log("Anime Finder controller connected");
     // Set default tab state
     this.showUploadTab(new Event("connect"));
   }
