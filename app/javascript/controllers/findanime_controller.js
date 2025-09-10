@@ -136,14 +136,14 @@ export default class FindanimeController extends Controller {
     this.urlTabTarget.classList.add("hidden");
 
     this.uploadTabButtonTarget.classList.add(
-      "border-purple-500",
-      "text-purple-600",
-      "dark:text-purple-400"
+      "border-blue-500",
+      "text-blue-600",
+      "dark:text-blue-400"
     );
     this.urlTabButtonTarget.classList.remove(
-      "border-purple-500",
-      "text-purple-600",
-      "dark:text-purple-400"
+      "border-blue-500",
+      "text-blue-600",
+      "dark:text-blue-400"
     );
   }
 
@@ -154,14 +154,14 @@ export default class FindanimeController extends Controller {
     this.urlTabTarget.classList.remove("hidden");
 
     this.urlTabButtonTarget.classList.add(
-      "border-purple-500",
-      "text-purple-600",
-      "dark:text-purple-400"
+      "border-blue-500",
+      "text-blue-600",
+      "dark:text-blue-400"
     );
     this.uploadTabButtonTarget.classList.remove(
-      "border-purple-500",
-      "text-purple-600",
-      "dark:text-purple-400"
+      "border-blue-500",
+      "text-blue-600",
+      "dark:text-blue-400"
     );
   }
 
